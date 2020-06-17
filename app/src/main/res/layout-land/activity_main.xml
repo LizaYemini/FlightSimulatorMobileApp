@@ -8,16 +8,17 @@
 
     <ListView
         android:id="@+id/addressesList"
-        android:layout_width="356dp"
-        android:layout_height="557dp"
+        android:layout_width="470dp"
+        android:layout_height="237dp"
         android:layout_marginStart="80dp"
         android:layout_marginTop="120dp"
         android:layout_marginEnd="80dp"
-        android:layout_marginBottom="68dp"
-        app:layout_constraintBottom_toTopOf="@+id/connectButton"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/chosenUrl"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <EditText
         android:id="@+id/chosenUrl"
@@ -28,7 +29,7 @@
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="40dp"
         android:ems="10"
-        android:inputType="textNoSuggestions"
+        android:inputType="text"
         android:hint="@string/type_url"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/connectButton"
