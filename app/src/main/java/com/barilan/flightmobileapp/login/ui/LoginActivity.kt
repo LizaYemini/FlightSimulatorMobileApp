@@ -2,6 +2,7 @@ package com.barilan.flightmobileapp.login.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -10,14 +11,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.barilan.flightmobileapp.R
 import com.barilan.flightmobileapp.control.connection.RetrofitBuilder
-import com.barilan.flightmobileapp.control.ui.ConnectionActivity
+import com.barilan.flightmobileapp.control.ui.ControlActivity
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.collections.ArrayList
 
 
 class LoginActivity : AppCompatActivity() {
@@ -58,27 +61,28 @@ class LoginActivity : AppCompatActivity() {
 
     private fun tryToConnect(address: String) {
         val self = this
-        //val api = RetrofitBuilder.build("http://10.0.2.2:5200/")
         val api = RetrofitBuilder.build(address)
-        val body = api.getImg().enqueue(object : Callback<ResponseBody> {
+        api.getImg().enqueue(object : Callback<ResponseBody> {
             override fun onResponse(
                 call: Call<ResponseBody>,
                 response: Response<ResponseBody>
             ) {
-                val i = Intent(self, ConnectionActivity::class.java)
+                val i = Intent(self, ControlActivity::class.java)
                 startActivity(i)
                     //Toast.makeText(this@LoginActivity, "Connected", Toast.LENGTH_SHORT).show()
             }
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Toast.makeText(this@LoginActivity, "Couldn't connect with the address: " + address
-                        + " Please Try Again", Toast.LENGTH_SHORT).show()
+                /*Toast.makeText(this@LoginActivity, "Couldn't connect with the address: " + address
+                        + " Please Try Again", Toast.LENGTH_SHORT).show() */
+                Toast.makeText(this@LoginActivity,t.toString(),Toast.LENGTH_SHORT).show()
+                Log.i("@AKTDEV", t.toString())
             }
         })
     }
 
     private fun isValidUrl(url: String): Boolean {
         val p: Pattern = Patterns.WEB_URL
-        val m: Matcher = p.matcher(url.toLowerCase())
+        val m: Matcher = p.matcher(url.toLowerCase(Locale.ROOT))
         return m.matches()
     }
 }
