@@ -1,2 +1,4 @@
+include ':virtualjoystick'
 include ':app'
+project(':virtualjoystick').projectDir = new File(rootDir, 'virtual-joystick-android-master/virtualjoystick/')
 rootProject.name = "FlightMobileApp"

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.barilan.flightmobileapp.R
 import com.barilan.flightmobileapp.control.connection.RetrofitBuilder
 import com.barilan.flightmobileapp.control.connection.WebService
+import com.barilan.flightmobileapp.control.data.Slider
 import kotlinx.android.synthetic.main.activity_connection.*
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -27,6 +28,11 @@ class ControlActivity : AppCompatActivity() {
                     "do you want to get back to the login page?")
         }
         showImg()
+        val connectionViewModel:ConnectionViewModel = ConnectionViewModel("http://localhost:5200")
+        rudderSlider.setOnSeekBarChangeListener(Slider("rudder",rudderView,connectionViewModel))
+        throttleSlider.setOnSeekBarChangeListener(Slider("throttle",throttleView,connectionViewModel))
+
+
     }
     private fun showImg() {
         api?.getImg()?.enqueue(object : Callback<ResponseBody> {
