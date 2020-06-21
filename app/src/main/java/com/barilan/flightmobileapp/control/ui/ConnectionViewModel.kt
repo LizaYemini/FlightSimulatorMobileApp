@@ -63,6 +63,11 @@ class ConnectionViewModel (val activity: AppCompatActivity): ViewModel(){
             try{
                 var result:Result? = deferredResult?.await()
                 if (result != null){
+                    //to get the massage -> result.message
+                    //to get the resultType -> result.resultType
+                    // result types -> InvalidCommand -> problem with command
+                    //                 Ok -> seccessfully sent to simulator
+                    //                 ServerError -> error with simulator
                     withContext(Dispatchers.Main){
                         Log.i("@ZIV", "onResponse ${result.message} ${result.resultType}")
                     }
