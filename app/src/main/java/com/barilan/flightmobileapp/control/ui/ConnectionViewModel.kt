@@ -30,16 +30,34 @@ class ConnectionViewModel (val activity: AppCompatActivity): ViewModel(){
     private var aileron:Float = 0.0f
     private var throttle:Float = 0.0f
 
-    fun setCommand(name:String,value:Float){
-        when(name){
-            "rudder" -> rudder = value
-            "elevator" ->elevator = value
-            "aileron"-> aileron = value
-            "throttle" ->throttle = value
+    fun setCommand(name:String,value:Float) {
+        when (name) {
+            "rudder" -> if(Math.abs(rudder-value)>=0.01) {
+                rudder = value
+                val command: Command = Command(rudder, elevator, aileron, throttle)
+                sendCommand(command)
+            }
+            "throttle" -> if(Math.abs(throttle-value)>=0.01){
+                throttle = value
+                val command: Command = Command(rudder, elevator, aileron, throttle)
+                sendCommand(command)
+            }
         }
-        val command: Command = Command(rudder,elevator,aileron,throttle)
-
-        //try with coroutines
+    }
+    fun setCommand(newAileron:Float,newElevator:Float){
+        if(!(Math.abs(aileron-newAileron)>= 0.01)){
+            return
+        }
+        if(!(Math.abs(elevator-newElevator)>= 0.01)){
+            return
+        }
+        aileron= newAileron
+        elevator = newElevator
+        val command: Command = Command(rudder, elevator, aileron, throttle)
+        sendCommand(command)
+    }
+    //try with coroutines
+    private fun sendCommand(command:Command){
         viewModelScope.launch(Dispatchers.IO) {
             var deferredResult = api?.setCommand(command)
             try{
@@ -48,15 +66,15 @@ class ConnectionViewModel (val activity: AppCompatActivity): ViewModel(){
                     withContext(Dispatchers.Main){
                         Log.i("@ZIV", "onResponse ${result.message} ${result.resultType}")
                     }
-
                 }
             }catch(e:Exception){
                 withContext(Dispatchers.Main){
                     Log.i("@ZIV", "onError ${e}")
                 }
-
             }
         }
+    }
+
 
         /*api?.setCommand(command)?.enqueue(object : Callback<Result> {
             override fun onResponse(
@@ -90,5 +108,5 @@ class ConnectionViewModel (val activity: AppCompatActivity): ViewModel(){
 
             }
         })*/
-    }
+
 }

@@ -17,6 +17,8 @@ import android.view.ViewConfiguration;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 
+import java.util.Date;
+
 public class JoystickView extends View
         implements
         Runnable {
@@ -559,13 +561,42 @@ public class JoystickView extends View
      * Reset the button position to the center.
      */
     public void resetButtonPosition() {
-        /*Animation animation = new TranslateAnimation(mPosX,mFixedCenterX,
-                mPosY,mFixedCenterY);
+        /*Animation animation = new TranslateAnimation(mPosX,mCenterX,
+                mPosY,mCenterY);
         animation.setDuration(2000);
         startAnimation(animation);*/
+        startAnimation();
 
-        mPosX = mCenterX;
-        mPosY = mCenterY;
+        //mPosX = mCenterX;
+        //mPosY = mCenterY;
+    }
+    public void startAnimation(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                double diff = Math.sqrt(Math.pow(mPosX-mCenterX,2)+Math.pow(mPosY-mCenterY,2));
+                long timeToSleep = 100;
+                double dx = mPosX - mCenterX;
+                double deltaX = -(dx/20);
+                double dy = mPosY - mCenterY;
+                double deltaY = -(dy/20);
+
+                for(int i = 0; i<=20; i++){
+                    invalidate();
+                    try {
+                        Thread.sleep(timeToSleep);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mPosX += deltaX;
+                    mPosY += deltaY;
+
+                }
+                mPosX = mCenterX;
+                mPosY = mCenterY;
+                invalidate();
+            }
+        }).start();
     }
 
 

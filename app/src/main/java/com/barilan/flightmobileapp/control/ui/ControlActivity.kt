@@ -3,6 +3,7 @@ package com.barilan.flightmobileapp.control.ui
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -10,14 +11,10 @@ import com.barilan.flightmobileapp.R
 import com.barilan.flightmobileapp.control.connection.RetrofitBuilder
 import com.barilan.flightmobileapp.control.connection.WebService
 import com.barilan.flightmobileapp.control.data.Slider
+import io.github.controlwear.virtual.joystick.android.JoystickView
 import kotlinx.android.synthetic.main.activity_connection.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class ControlActivity : AppCompatActivity() {
     private var viewModelJob = Job()
@@ -47,6 +44,13 @@ class ControlActivity : AppCompatActivity() {
                 connectionViewModel
             )
         )
+        joystick.setOnMoveListener (JoystickView.OnMoveListener  {angle, strength ->
+            var newStrength = strength*0.01
+            var newAngle = Math.toRadians(angle.toDouble())
+            var aileron = newStrength*Math.cos(newAngle)
+            var elevator = newStrength*Math.sin(newAngle)
+            connectionViewModel.setCommand(aileron.toFloat(),elevator.toFloat())
+        },500)
     }
     private fun loopImg() {
         if (showImg) {
