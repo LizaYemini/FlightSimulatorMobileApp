@@ -11,17 +11,17 @@ import com.barilan.flightmobileapp.control.connection.RetrofitBuilder
 import com.barilan.flightmobileapp.control.connection.WebService
 import com.barilan.flightmobileapp.control.data.Slider
 import kotlinx.android.synthetic.main.activity_connection.*
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class ControlActivity : AppCompatActivity() {
+    private var viewModelJob = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private var api: WebService? = null
     private var showImg: Boolean = true
     val TAG = "StateChange"
@@ -38,7 +38,7 @@ class ControlActivity : AppCompatActivity() {
             )
         }
         //showImg()
-        val connectionViewModel: ConnectionViewModel = ConnectionViewModel("http://localhost:5200")
+        val connectionViewModel: ConnectionViewModel = ConnectionViewModel(this)
         rudderSlider.setOnSeekBarChangeListener(Slider("rudder", rudderView, connectionViewModel))
         throttleSlider.setOnSeekBarChangeListener(
             Slider(
@@ -48,7 +48,6 @@ class ControlActivity : AppCompatActivity() {
             )
         )
     }
-
     private fun loopImg() {
         if (showImg) {
             CoroutineScope(IO).launch {
@@ -60,7 +59,24 @@ class ControlActivity : AppCompatActivity() {
     }
 
     private fun showImg() {
-        api?.getImg()?.enqueue(object : Callback<ResponseBody> {
+        uiScope.launch(Dispatchers.IO){
+            var result = api?.getImg()
+            try{
+                withContext(Dispatchers.Main) {
+                    var input = result?.await()?.byteStream()
+                    val bit = BitmapFactory.decodeStream(input)
+                    withContext(Dispatchers.Main) {
+                        imageSimulator.setImageBitmap(bit)
+                    }
+                }
+            }catch(ex:Exception){
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ControlActivity, ex.toString(), Toast.LENGTH_SHORT).show()
+                }
+            }
+
+        }
+        /*api?.getImg()?.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(
                 call: Call<ResponseBody>,
                 response: Response<ResponseBody>
@@ -71,12 +87,12 @@ class ControlActivity : AppCompatActivity() {
                     imageSimulator.setImageBitmap(bit)
                 }
             }
-
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Toast.makeText(this@ControlActivity, t.toString(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ControlActivity,t.toString(),Toast.LENGTH_SHORT).show()
                 Log.i("@AKTDEV", t.toString())
             }
-        })
+        })*/
+
     }
 
     private fun askForBackToLogin(msg: String) {

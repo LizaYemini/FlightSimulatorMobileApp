@@ -13,6 +13,7 @@ import com.barilan.flightmobileapp.R
 import com.barilan.flightmobileapp.control.connection.RetrofitBuilder
 import com.barilan.flightmobileapp.control.ui.ControlActivity
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.coroutines.*
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -24,7 +25,8 @@ import kotlin.collections.ArrayList
 
 
 class LoginActivity : AppCompatActivity() {
-
+    private var viewModelJob = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private lateinit var vm: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +64,22 @@ class LoginActivity : AppCompatActivity() {
     private fun tryToConnect(address: String) {
         val self = this
         val api = RetrofitBuilder.build(address)
-        api.getImg().enqueue(object : Callback<ResponseBody> {
+        uiScope.launch(Dispatchers.IO) {
+            val deferredResult = api.getImg()
+            try{
+                val result = deferredResult.await()
+                withContext(Dispatchers.Main) {
+                    val i = Intent(self, ControlActivity::class.java)
+                    startActivity(i)
+                }
+            } catch(ex:Exception){
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@LoginActivity, ex.toString(), Toast.LENGTH_SHORT).show()
+                    Log.i("@LOGIN", ex.toString())
+                }
+            }
+        }
+            /*api.getImg().enqueue(object : Callback<ResponseBody> {
             override fun onResponse(
                 call: Call<ResponseBody>,
                 response: Response<ResponseBody>
@@ -75,9 +92,9 @@ class LoginActivity : AppCompatActivity() {
                 /*Toast.makeText(this@LoginActivity, "Couldn't connect with the address: " + address
                         + " Please Try Again", Toast.LENGTH_SHORT).show() */
                 Toast.makeText(this@LoginActivity,t.toString(),Toast.LENGTH_SHORT).show()
-                Log.i("@AKTDEV", t.toString())
+                Log.i("@LOGIN", t.toString())
             }
-        })
+        })*/
     }
 
     private fun isValidUrl(url: String): Boolean {

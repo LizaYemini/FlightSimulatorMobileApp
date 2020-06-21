@@ -1,6 +1,10 @@
 package com.barilan.flightmobileapp.control.data
 
+import com.google.gson.annotations.SerializedName
+
 class Result {
-    var resultType:String = ""
-    var message:String = ""
+    @SerializedName("result_type")
+    var resultType:String? = null
+    @SerializedName("message")
+    var message:String? = null
 }

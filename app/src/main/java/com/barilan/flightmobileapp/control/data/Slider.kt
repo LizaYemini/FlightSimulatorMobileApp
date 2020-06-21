@@ -11,14 +11,11 @@ class Slider(var name:String,var view: TextView,val connectionViewModel: Connect
         progress: Int,
         fromUser: Boolean
     ) {
-        if(Math.abs(progress-progressChangedValue*100)>2){
+        if(Math.abs(progress-progressChangedValue*100)>=2){
             progressChangedValue = changeToDouble(progress)
         }
         view.text = progressChangedValue.toString()
         connectionViewModel.setCommand(name,progressChangedValue)
-        //TODO("send to ViewModel")
-
-
     }
     fun changeToDouble(progress:Int):Float {
         return ((progress*0.01).toFloat())
