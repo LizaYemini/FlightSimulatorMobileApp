@@ -33,15 +33,3 @@ fun newLoginDB(context: Context): LoginDB {
         "login_db")
         .fallbackToDestructiveMigration().build()
 }
-
-
-/*
-synchronized(this) {
-                var instance = INSTANCE
-                if (instance == null) {
-                    instance = newLoginDB(context)
-                }
-                INSTANCE = instance
-                return instance
-            }
- */

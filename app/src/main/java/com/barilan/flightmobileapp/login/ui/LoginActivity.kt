@@ -2,7 +2,6 @@ package com.barilan.flightmobileapp.login.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -14,10 +13,6 @@ import com.barilan.flightmobileapp.control.connection.RetrofitBuilder
 import com.barilan.flightmobileapp.control.ui.ControlActivity
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.coroutines.*
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -51,11 +46,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
     private fun renderAddresses(addresses: List<String>) {
-        //Log.i("@AKTDEV", "<<in renderAddresses>>")
         val arrayAddresses: ArrayList<String> = ArrayList()
         for (i in addresses.indices) {
             arrayAddresses.add(addresses[i])
-            //Log.i("@AKTDEV", "$arrayAddresses")
         }
         val adapter = ArrayAdapter(this,R.layout.listview_item, arrayAddresses)
         addressesList.adapter = adapter
@@ -65,36 +58,24 @@ class LoginActivity : AppCompatActivity() {
         val self = this
         val api = RetrofitBuilder.build(address)
         uiScope.launch(Dispatchers.IO) {
-            val deferredResult = api.getImg()
+            val deferredResult = api.getImgAsync()
             try{
-                val result = deferredResult.await()
+                deferredResult.await()
                 withContext(Dispatchers.Main) {
                     val i = Intent(self, ControlActivity::class.java)
                     startActivity(i)
                 }
             } catch(ex:Exception){
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@LoginActivity, ex.toString(), Toast.LENGTH_SHORT).show()
-                    Log.i("@LOGIN", ex.toString())
-                }
+                tryToConnectException(ex)
             }
         }
-            /*api.getImg().enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(
-                call: Call<ResponseBody>,
-                response: Response<ResponseBody>
-            ) {
-                val i = Intent(self, ControlActivity::class.java)
-                startActivity(i)
-                    //Toast.makeText(this@LoginActivity, "Connected", Toast.LENGTH_SHORT).show()
-            }
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                /*Toast.makeText(this@LoginActivity, "Couldn't connect with the address: " + address
-                        + " Please Try Again", Toast.LENGTH_SHORT).show() */
-                Toast.makeText(this@LoginActivity,t.toString(),Toast.LENGTH_SHORT).show()
-                Log.i("@LOGIN", t.toString())
-            }
-        })*/
+    }
+
+    private suspend fun tryToConnectException(ex: Exception) {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(this@LoginActivity, ex.toString(), Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
     private fun isValidUrl(url: String): Boolean {
